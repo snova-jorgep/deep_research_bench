@@ -214,6 +214,24 @@ Results will be saved to:
 - RACE evaluation: `results/race/<model_name>/race_result.txt`
 - FACT evaluation: `results/fact/<model_name>/fact_result.txt`
 
+### Sambanova Run
+
+```
+SN_API_KEY=... python generate_sambanova.py
+```
+
+Then copy over generated file (`generate_sambanova_data_*.jsonl`) to `data/test_data/raw_data/sambanova.jsonl` as stated above in Quick Start
+
+### Groq Run
+
+```
+GROQ_API_KEY=... python generate_groq.py
+```
+
+NOTE: `citation_prompt = "\n\nMake sure to add a citations page at the end."` is added to prompt to ellicit citations. Feel free to remove if needed.
+
+Then copy over generated file (`generate_groq_data_*.jsonl`) to `data/test_data/raw_data/groq.jsonl` as stated above in Quick Start
+
 ### Custom LLM Integration
 
 If you're not using the official Gemini API or want to use other LLMs for evaluation, modify the `AIClient` class in `utils/api.py` to implement your custom LLM interface.
