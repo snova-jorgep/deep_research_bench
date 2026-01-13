@@ -214,3 +214,19 @@ htmlcov/
 
 # Performance profiling
 *.prof 
+
+
+.env.sh
+sample/*
+results/race/sambanova*
+results/race/groq*
+results/race/fireworks*
+results/fact/sambanova*
+results/fact/groq*
+results/fact/fireworks*
+data/test_data/cleaned_data/sambanova*
+data/test_data/cleaned_data/fireworks*
+data/test_data/cleaned_data/groq*
+data/test_data/raw_data/sambanova*
+data/test_data/raw_data/fireworks*
+data/test_data/raw_data/groq*
