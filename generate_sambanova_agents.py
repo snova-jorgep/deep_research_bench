@@ -1,36 +1,40 @@
 import requests
 import time
 import json
-from tqdm import tqdm  # Import the tqdm library
+from tqdm import tqdm
 import os
 
-file_path = "data/prompt_data/query.jsonl"
+INPUT_FILE_PATH = "data/prompt_data/query.jsonl"
+RESULTS_PATH = "data/test_data/raw_data"
+RESULTS_NAME = "sambanova_dev2_gptoss_data"
+MAX_RETRIES = 5
+TIMEOUT = 1200 # 20 min
+SLEEP_BETWEEN_REQUESTS = 0
+RETRY_SLEEP = 20
+
 data_list = []
-api_key = os.getenv("SN_API_KEY", None)
-print(api_key)
+api_key = os.getenv("SAMBANOVA_API_KEY", None)
+
 if not api_key:
-    raise ValueError(f"SN_API_KEY value not set")
+    raise ValueError(f"SAMBANOVA_API_KEY value not set")
 
-with open(file_path, "r", encoding="utf-8") as file:
-    for line in file:
-        data_list.append(json.loads(line))
-
-base_url = "http://127.0.0.1:8000/api/" #"https://aiskagents-dev.cloud.snova.ai/api/"  #"https://aiskagents.cloud.snova.ai/api/"  # Replace with your base URL
+base_url = "http://127.0.0.1:8000/api/" #"https://aiskagents-dev.cloud.snova.ai/api/"  #"https://aiskagents.cloud.snova.ai/api/"  # Replace with your agents backend base URL
 
 headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {api_key}"  # Add any required headers
+    "Authorization": f"Bearer {api_key}"  #required headers
 }
+
+with open(INPUT_FILE_PATH, "r", encoding="utf-8") as file:
+    for line in file:
+        data_list.append(json.loads(line))
 
 timestamp = time.time()
 
-for idx, data in enumerate(tqdm(data_list)):  # Wrap your iterable with tqdm
-    # Your existing loop code here
-    # if idx >= sample:
-    #     break
+for idx, data in enumerate(tqdm(data_list)):  # Wrap iterable with tqdm
     result = None
     count=0
-    while result is None and count <= 5: # 5 retries
+    while result is None and count <= MAX_RETRIES:
         count+=1
         time_taken = time.time()
         prompt = data['prompt']
@@ -46,9 +50,9 @@ for idx, data in enumerate(tqdm(data_list)):  # Wrap your iterable with tqdm
                     f"{base_url}agent/deepresearch",
                     headers=headers,
                     json=json_data,
-                    timeout=1200  # 1200 seconds (20 minutes) timeout
+                    timeout=TIMEOUT
                 ) as response:
-                    response.raise_for_status()  # Raises an HTTPError for bad responses
+                    response.raise_for_status()
                     result = response.json()
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {e}")
@@ -62,10 +66,11 @@ for idx, data in enumerate(tqdm(data_list)):  # Wrap your iterable with tqdm
                 "time_taken": time_taken,
                 "language": language
             }
-            with open(f'generate_sambanova_dec_22_data_{timestamp}.jsonl', 'a') as f:
+            with open(f'{RESULTS_PATH}/{RESULTS_NAME}_{timestamp}.jsonl', 'a') as f:
                 json.dump(api_result, f)
                 f.write('\n')
         except TypeError:
             print(f"Not result error retrying prompt {idx} for {count} time")
             result=None
-            time.sleep(20)
+            time.sleep(RETRY_SLEEP)
+    time.sleep(SLEEP_BETWEEN_REQUESTS)

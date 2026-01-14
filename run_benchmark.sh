@@ -1,6 +1,6 @@
 #!/bin/bash
 # Target model name list
-TARGET_MODELS=("sambanova_dec_22")
+TARGET_MODELS=("sambanova_dev2_gptoss_data_1768404721.5177028")
 
 # Common parameters for both RACE and Citation evaluations
 RAW_DATA_DIR="data/test_data/raw_data"
